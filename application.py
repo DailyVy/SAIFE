@@ -3,34 +3,40 @@ import sys
 # import database
 
 app = Flask(__name__)
-# app.secret_key = "choivy"  # 로그인을 할 때 필요한 secret key 이다.
-#
-# # 임의로 ID와 PW 지정하기
-# ID = "admin"
-# PW = "admin"
+app.secret_key = "choivy"  # 로그인을 할 때 필요한 secret key 이다.
 
-# @app.route("/")
-# def home():
-#     if "userID" in session: # 로그인이 된 상태 userID가 session에 존재하는 상태
-#         return render_template("signin.html", username = session.get("userId"), login=True) # session 에 있는 username 가져오기
-#     else: # userID가 session에 존재하지 않은 상태
-#         return render_template("signin.html", login=False)
+# 관리자 ID와 PW 임의로 지정
+ID = "admin"
+PW = "admin"
 
-# @app.route("/login", methods = ["get"]) # html 파일에서 get 메서드를 써줬으니까~
-# def login():
-#     global ID, PW
-#     _id_ = request.args.get("loginId") # html에 있는 name
-#     _password_ = request.args.get("loginPw")
-#
-#     if ID == _id_ and PW == _password_:
-#         print(_id_, _password_)
-#
-# @app.route("/logout")
-# def logout():
-#     session.pop("userID") # pop은 꺼내주는 것
-#     return redirect(url_for("home"))
+@app.route("/")
+def signin():
+    if "userID" in session: # 로그인이 된 상태 userID가 session에 존재하는 상태
+        return render_template("signin.html", username = session.get("userID"), login=True) # session 에 있는 username 가져오기
+    else: # userID가 session에 존재하지 않은 상태
+        return render_template("signin.html", login=False)
 
-@app.route("/")  # 원래는 "/"였는데 수정해주었다
+
+@app.route("/login", methods = ["GET", "POST"]) 
+def login():
+    global ID, PW
+    _id_ = request.args.get("loginId") # html에 있는 name
+    _password_ = request.args.get("loginPw")
+
+    if ID == _id_ and PW == _password_:
+        # print(_id_, _password_)
+        session["userID"] = _id_
+        return redirect(url_for("index"))
+    else:
+        return redirect(url_for("signin"))
+
+@app.route("/logout")
+def logout():
+    session.pop("userID") # pop은 꺼내주는 것
+    return redirect(url_for("signin"))
+
+
+@app.route("/index")  # 원래는 "/"였는데 수정해주었다
 def index():
     return render_template("index.html")
 
